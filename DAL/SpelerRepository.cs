@@ -16,16 +16,17 @@ public class SpelerRepository
 
     public SpelerRepository() { }
 
-    public Speler GetRealSpeler(Speler speler)
+    public Speler GetRealSpeler(string name)
     {
         using GalgContext context = new GalgContext(Options);
 
-        if (!context.spelers.Any(s => s.UserName == speler.UserName))
+        if (!context.spelers.Any(s => s.UserName == name))
         {
+            Speler speler = new Speler(name);
             VoegSpelerToe(speler);
         }
 
-        return context.spelers.Where(s => s.UserName == speler.UserName).FirstOrDefault();
+        return context.spelers.Where(s => s.UserName == name).FirstOrDefault();
     }
 
     public void VoegSpelerToe(Speler speler)

@@ -5,7 +5,7 @@ namespace Domain;
 
 public class Controller
 {
-    public List<Speler> spelers = new List<Speler>();
+    public List<Speler> GameSpelers = new List<Speler>();
     public int MaxTries = 9;
     public int WrongTries { get; set; } = 0;
     List<char> WrongLetters = new List<char>();
@@ -14,34 +14,42 @@ public class Controller
     public string? WordToGuess { get; set; }
     public Speler? HuidigeSpeler { get; set; }
 
+    GameRepository GameRepo { get; set; }
+    SpelerRepository SpelerRepo { get; set; }
+    StatsRepository StatsRepo { get; set; }
 
-    public void NewRound(string word)
+    public Controller(GameRepository gamerepo, SpelerRepository spelerrepo, StatsRepository statsrepo)
     {
-        GameReset(word);
-        HuidigeSpeler = spelers[(spelers.IndexOf(HuidigeSpeler) + 1) % spelers.Count()];
+        GameRepo = gamerepo;
+        SpelerRepo = spelerrepo;
+        StatsRepo = statsrepo;
     }
 
-    public void GameReset(string word)
+    public void NewRound()
+    {
+        GameReset();
+        HuidigeSpeler = GameSpelers[(GameSpelers.IndexOf(HuidigeSpeler) + 1) % GameSpelers.Count()];
+
+    }
+
+    public void GameReset()
     {
         WrongTries = 0;
         TotalTries = 0;
         Tried.Clear();
         WrongLetters.Clear();
-        SetGuessWord(word);
+        SetGuessWord();
     }
 
     public void SetPlayer(string name)
     {
-        SpelerRepository repo = new SpelerRepository();
-
-        Speler tempspeler = new Speler(name);
-        Speler speler = repo.GetRealSpeler(tempspeler);
-        this.spelers.Add(speler);
+        Speler speler = SpelerRepo.GetRealSpeler(name);
+        GameSpelers.Add(speler);
     }
 
     internal void SetGuessWord()
-    {
-        WordToGuess = word.ToLower();
+    { 
+        WordToGuess = GameRepo.GetWord();
     }
 
     public char InputValidator(string input)
@@ -94,7 +102,7 @@ public class Controller
     {
         if (WordToGuess == DisplayGoodGuesses())
         {
-            SaveGame(new Game(true, TotalTries, WrongTries, HuidigeSpeler));
+            SaveGame(true, TotalTries, WrongTries, HuidigeSpeler);
             Console.WriteLine($"Je hebt het woord geraden! {DisplayGoodGuesses()} in {TotalTries} beurten!");
 
             return true;
@@ -110,7 +118,7 @@ public class Controller
     {
         if (WrongTries == MaxTries)
         {
-            SaveGame(new Game(false, TotalTries, WrongTries, HuidigeSpeler));
+            SaveGame(false, TotalTries, WrongTries, HuidigeSpeler);
             Console.WriteLine("Jij hangt");
 
             return true;
@@ -123,16 +131,15 @@ public class Controller
         }
     }
 
-    public void SaveGame(Game game)
+    public void SaveGame(bool won, int tries, int wrongtries, Speler speler)
     {
-        GameRepository repo = new GameRepository();
-        repo.VoegGameToe(game);
+        GameRepo.VoegGameToe(new Game(won, tries, wrongtries, speler)); // mag dat hier?
     }
 
     public void GetGameStatsOver(int aantal)
     {
-        StatsRepository repo = new StatsRepository();
-        GameStats stats = repo.GetGameStatsOver(aantal);
+        
+        GameStats stats = StatsRepo.GetGameStatsOver(aantal);
 
         Console.WriteLine($"==>> Van de laatste {stats.AantalPotjes} potjes zijn er {stats.VerlorenPotjes} verloren");
         Console.WriteLine($"==>> Gemiddeld zijn er {stats.AantalPogingenGemiddeld} pogingen nodig");
@@ -141,16 +148,14 @@ public class Controller
 
     public void GetBestPlayer()
     {
-        StatsRepository repo = new StatsRepository();
-        PlayerStats bestplayer =  repo.GetBestPlayer();
+        PlayerStats bestplayer =  StatsRepo.GetBestPlayer();
 
         Console.WriteLine($"==>> De beste speler is {bestplayer.Name} met een winratio van {Math.Round(bestplayer.WinRatio, 2)}% over {bestplayer.Potjes} gespeelde potjes");
     }
 
     public void GetAllPlayers()
     {
-        StatsRepository repo = new StatsRepository();
-        List < PlayerStats > statlist = repo.GetPlayerStats();
+        List < PlayerStats > statlist = StatsRepo.GetPlayerStats();
 
         statlist.ForEach(x => Console.WriteLine($"Speler: {x.Name}\t Potjes gespeeld: {x.Potjes}\t Winratio: {Math.Round(x.WinRatio, 2)}%\t Pogingen nodig: {x.Pogingen}"));
 

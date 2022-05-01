@@ -9,11 +9,11 @@ class Program
 {
     static void Main(string[] args)
     {
-        GameRepository repo = new GameRepository();
-        string word = repo.GetWord();
-        Console.WriteLine(word);
+        GameRepository GameRepo = new GameRepository();
+        SpelerRepository SpelerRepo = new SpelerRepository();
+        StatsRepository StatsRepo = new StatsRepository();
+        Controller controller = new Controller(GameRepo, SpelerRepo, StatsRepo);
 
-        Controller controller = new Controller();
         Console.WriteLine("Wat is je naam?");
 
         while (true) // Stop de spelers in de controller
@@ -22,7 +22,7 @@ class Program
             if (name != "")
             {
                 controller.SetPlayer(name);
-                Console.WriteLine($"Welkom, {name}! Geef een naam om nog een speler toe te voegen. Of druk enter om te starten");
+                Console.WriteLine($"Welkom, {name}! Geef een naam om nog een speler toe te voegen. Of druk enter om te starten");      
             }
             else
             {
@@ -31,7 +31,7 @@ class Program
         }
         while (true) // Start een nieuwe ronde met de volgende speler
         {
-            controller.NewRound(Woord.NewWoord());
+            controller.NewRound();
             Console.WriteLine($"Succes {controller.HuidigeSpeler.UserName}. Woord is klaar gezet");
 
             while (true) // Zolang het woord nog niet geraden is
@@ -68,7 +68,7 @@ class Program
                             switch (input)
                             {
                                 case "r":
-                                    controller.GameReset(Woord.NewWoord());
+                                    controller.GameReset();
                                     Console.WriteLine("==>> Game Reset");
                                     break;
                                 case "s":
