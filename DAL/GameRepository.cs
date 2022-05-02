@@ -31,9 +31,8 @@ public class GameRepository
         using (GalgContext context = new GalgContext(Options))
         {
             Random rnd = new Random();
-            int randomIndex = rnd.Next(0, context.words.Count());
 
-            var WoordId = new SqlParameter("@Id", randomIndex);
+            var WoordId = new SqlParameter("@Id", rnd.Next(0, context.words.Count() - 1));
 
             var result = context.words.FromSqlRaw("Getword @Id", WoordId)
                 .ToList();

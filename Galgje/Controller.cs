@@ -14,22 +14,14 @@ public class Controller
     public string? WordToGuess { get; set; }
     public Speler? HuidigeSpeler { get; set; }
 
-    GameRepository GameRepo { get; set; }
-    SpelerRepository SpelerRepo { get; set; }
-    StatsRepository StatsRepo { get; set; }
-
-    public Controller(GameRepository gamerepo, SpelerRepository spelerrepo, StatsRepository statsrepo)
-    {
-        GameRepo = gamerepo;
-        SpelerRepo = spelerrepo;
-        StatsRepo = statsrepo;
-    }
+    GameRepository GameRepo { get; init; } = new GameRepository();
+    SpelerRepository SpelerRepo { get; init; } = new SpelerRepository();
+    StatsRepository StatsRepo { get; init; } = new StatsRepository();
 
     public void NewRound()
     {
         GameReset();
         HuidigeSpeler = GameSpelers[(GameSpelers.IndexOf(HuidigeSpeler) + 1) % GameSpelers.Count()];
-
     }
 
     public void GameReset()
@@ -38,7 +30,7 @@ public class Controller
         TotalTries = 0;
         Tried.Clear();
         WrongLetters.Clear();
-        SetGuessWord();
+        WordToGuess = GameRepo.GetWord();
     }
 
     public void SetPlayer(string name)
@@ -47,42 +39,25 @@ public class Controller
         GameSpelers.Add(speler);
     }
 
-    internal void SetGuessWord()
-    { 
-        WordToGuess = GameRepo.GetWord();
-    }
-
-    public char InputValidator(string input)
-    {
-        char c = Input.StringToChar(input);
-        Input.IsNotSpecial(c);
-        Input.IsNotNumeric(c);
-        return Input.ToLower(c);
-    }
-
     public bool InputAdmin(char input)
     {
-        if (!Tried.Contains(input))
+        if (Tried.Contains(input))
+            throw new ArgumentException("Deze heb je al eens gegokt");
+
+        Tried.Add(input);
+        TotalTries++;
+
+        if (WordToGuess.Contains(input))
         {
-            Tried.Add(input);
-            TotalTries++;
-            if (WordToGuess.Contains(input))
-            {
-                return true;
-            }
-            WrongLetters.Add(input);
-            UpWrongGuess();
-            return false;
+            if (GoodGuessHandler())
+                return true;//Woord geraden
         }
         else
         {
-            throw new ArgumentException("Deze heb je al eens gegokt");
+            if (BadGuessHandler(input))
+                return true; // Game Over
         }
-    }
-
-    internal void UpWrongGuess()
-    {
-        WrongTries++;
+        return false;//Volgende letter vragen
     }
 
     public string DisplayGoodGuesses()
@@ -98,13 +73,12 @@ public class Controller
         return guessed;
     }
 
-    public bool GoodGuess()
+    public bool GoodGuessHandler()
     {
         if (WordToGuess == DisplayGoodGuesses())
         {
-            SaveGame(true, TotalTries, WrongTries, HuidigeSpeler);
+            GameRepo.VoegGameToe(new Game(true, TotalTries, WrongTries, HuidigeSpeler));
             Console.WriteLine($"Je hebt het woord geraden! {DisplayGoodGuesses()} in {TotalTries} beurten!");
-
             return true;
         }
         else
@@ -114,26 +88,22 @@ public class Controller
         }
     }
 
-    public bool BadGuess()
+    public bool BadGuessHandler(char input)
     {
+        WrongLetters.Add(input);
+        WrongTries++;
+
         if (WrongTries == MaxTries)
         {
-            SaveGame(false, TotalTries, WrongTries, HuidigeSpeler);
+            GameRepo.VoegGameToe(new Game(false, TotalTries, WrongTries, HuidigeSpeler));
             Console.WriteLine("Jij hangt");
-
             return true;
         }
         else
         {
-            int TriesToGo = MaxTries - WrongTries;
-            Console.WriteLine($"Helaas, Je mag het nog {TriesToGo} keer proberen. {DisplayGoodGuesses()}");
+            Console.WriteLine($"Helaas, Je mag het nog {MaxTries - WrongTries} keer proberen. {DisplayGoodGuesses()}");
             return false;
         }
-    }
-
-    public void SaveGame(bool won, int tries, int wrongtries, Speler speler)
-    {
-        GameRepo.VoegGameToe(new Game(won, tries, wrongtries, speler)); // mag dat hier?
     }
 
     public void GetGameStatsOver(int aantal)
@@ -155,10 +125,8 @@ public class Controller
 
     public void GetAllPlayers()
     {
-        List < PlayerStats > statlist = StatsRepo.GetPlayerStats();
-
-        statlist.ForEach(x => Console.WriteLine($"Speler: {x.Name}\t Potjes gespeeld: {x.Potjes}\t Winratio: {Math.Round(x.WinRatio, 2)}%\t Pogingen nodig: {x.Pogingen}"));
-
+        StatsRepo.GetPlayerStats()
+            .ForEach(x => Console.WriteLine($"Speler: {x.Name}\t Potjes gespeeld: {x.Potjes}\t Winratio: {Math.Round(x.WinRatio, 2)}%\t Pogingen nodig: {x.Pogingen}"));
     }
 
 }

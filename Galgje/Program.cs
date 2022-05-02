@@ -9,14 +9,10 @@ class Program
 {
     static void Main(string[] args)
     {
-        GameRepository GameRepo = new GameRepository();
-        SpelerRepository SpelerRepo = new SpelerRepository();
-        StatsRepository StatsRepo = new StatsRepository();
-        Controller controller = new Controller(GameRepo, SpelerRepo, StatsRepo);
-
+        Controller controller = new Controller();
         Console.WriteLine("Wat is je naam?");
 
-        while (true) // Stop de spelers in de controller
+        while (true) 
         {
             string name = Console.ReadLine();
             if (name != "")
@@ -43,20 +39,10 @@ class Program
 
                     if (UserInput != "menu")
                     {
-                        char input = controller.InputValidator(UserInput);
-
-                        if (controller.InputAdmin(input))// Letter is goed
-                        {
-                            if (controller.GoodGuess())
-                                break;
-                        }
-                        else // Letter is verkeerd
-                        {
-                            if (controller.BadGuess())
-                                break;
-                        }
+                        if (controller.InputAdmin(Input.Validator(UserInput)))
+                            break;//Woord geraden of beurten op
                     }
-                    else // enter menu
+                    else
                     {
                         bool menu = true;
                         while (menu == true)
