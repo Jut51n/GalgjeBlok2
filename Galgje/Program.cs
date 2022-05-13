@@ -1,5 +1,6 @@
 ﻿using DAL;
 using Domain;
+using Galgje;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,54 +38,22 @@ class Program
                     Console.WriteLine("Geef een letter(of tik 'menu' voor opties)");
                     string UserInput = Console.ReadLine();
 
-                    if (UserInput != "menu")
+                    if (UserInput == "menu")
                     {
-                        if (controller.InputAdmin(Input.Validator(UserInput)))
-                            break;//Woord geraden of beurten op
+                        MenuPresenter menu = new MenuPresenter(controller, new MenuView());
+                        menu.ShowMenu();
                     }
                     else
                     {
-                        bool menu = true;
-                        while (menu == true)
-                        {
-                            Console.WriteLine("\n------------------------------------------------------- GalgjeMan --------------------------------------------------");
-                            Console.WriteLine($"Reset game (r) | Laatste 10 Stats (s) | Beste Speler (b) | Alle Speler stats (a) | Close menu (c) | Exit Game (x)\n");
-                            string input = Console.ReadLine();
-
-                            switch (input)
-                            {
-                                case "r":
-                                    controller.GameReset();
-                                    Console.WriteLine("==>> Game Reset");
-                                    break;
-                                case "s":
-                                    controller.GetGameStatsOver(10);
-                                    break;
-                                case "b":
-                                    controller.GetBestPlayer();
-                                    break;
-                                case "a":
-                                    controller.GetAllPlayers();
-                                    break;
-                                case "c":
-                                    menu = false;
-                                    continue;
-                                case "x":
-                                    return;
-                                default:
-                                    break;
-                            }
-                        }
+                        if (controller.InputAdmin(Input.Validator(UserInput)))
+                            break;
                     }
                 }
                 catch (ArgumentException e)
                 {
                     Console.WriteLine(e.Message);
                 }
-
             }
-
         }
-
     }
 }

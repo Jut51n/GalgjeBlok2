@@ -1,6 +1,6 @@
 ﻿namespace Domain;
 
-public class Game
+public class stats
 {
     public int Id { get; set; }
     public DateTime datetime { get; set; }
@@ -10,14 +10,13 @@ public class Game
     public int SpelerId { get; set; }
     public virtual Speler? Speler { get; set; }
 
-    public Game()
+    public stats()
     {
 
     }
 
-    public Game(bool won, int tries, int wrongLetters, Speler speler)
+    public stats(bool won, int tries, int wrongLetters, Speler speler)
     {
-
         datetime = DateTime.Now;
         Won = won;
         Tries = tries;

@@ -17,7 +17,7 @@ public class GameRepository
 
     public GameRepository() { }
 
-    public void VoegGameToe(Game game)
+    public void VoegGameToe(stats game)
     {
         using (GalgContext context = new GalgContext(Options))
         {
@@ -42,3 +42,4 @@ public class GameRepository
     }
 
 }
+

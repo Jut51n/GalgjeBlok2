@@ -8,7 +8,7 @@ namespace DAL;
 public class GalgContext : DbContext
 {
     public DbSet<Speler> spelers { get; set; }
-    public DbSet<Game> games { get; set; }
+    public DbSet<stats> games { get; set; }
     public DbSet<Word> words { get; set; }
 
     public GalgContext(DbContextOptions<GalgContext> options)
@@ -23,7 +23,7 @@ public class GalgContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Ignore<PlayerStats>();
         modelBuilder.ApplyConfiguration<Speler>(new SpelerMapping());
-        modelBuilder.ApplyConfiguration<Game>(new GameMapping());
+        modelBuilder.ApplyConfiguration<stats>(new GameMapping());
     }
 }
 

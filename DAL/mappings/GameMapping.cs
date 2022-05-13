@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DAL
 {
-    internal class GameMapping : IEntityTypeConfiguration<Game>
+    internal class GameMapping : IEntityTypeConfiguration<stats>
     {
-        public void Configure(EntityTypeBuilder<Game> builder)
+        public void Configure(EntityTypeBuilder<stats> builder)
         {
 
         }

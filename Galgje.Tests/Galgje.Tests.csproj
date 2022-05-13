@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Galgje\Galgje.csproj" />
   </ItemGroup>
 
 </Project>
